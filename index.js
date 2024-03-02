@@ -1,9 +1,12 @@
 const express = require("express");
-const fs = require("fs");
+const bodyParser = require("body-parser");
 
 const books = [];
 
 const app = express();
+
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 
 app.use("/home", (req, res, next) => {
   console.log("Home page");
@@ -11,17 +14,45 @@ app.use("/home", (req, res, next) => {
 });
 
 app.get("/book", (req, res, next) => {
-    res.send(books);
+  res.send(books);
 });
 
 app.post("/book", (req, res, next) => {
-  const title = req.body
-  const author = req.body
+  const id = books.length + 1;
+  const title = req.body.title;
+  const author = req.body.author;
+  console.log(req.body);
 
   books.push({ title, author });
 
-  res.send(json.stringify(books));
+  res.send({
+    id,
+    title,
+    author,
+  });
 });
+
+app.get("/book/:id", (req, res, next) => {
+  const id = req.params.id;
+  res.send(books[id]);
+});
+
+app.put("/book/:id", (req, res, next) => {
+    const id = req.params.id;
+    const title = req.body.title;
+    const author = req.body.author;
+    
+    books[id] = { title, author };
+    res.send(books[id]);
+    }
+);
+
+app.delete("/book/:id", (req, res, next) => {
+    const id = req.params.id;
+    books.splice(id, 1);
+    res.send(books);
+    }
+);
 
 app.listen(8080, () => {
   console.log("Server is running on port 8080");
